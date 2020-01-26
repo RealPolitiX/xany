@@ -1,2 +1,2 @@
 # xany
-integrated x-ray imaging
+Integrate X-ray imaging and spectroscopy data processing

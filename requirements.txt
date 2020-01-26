@@ -1,0 +1,4 @@
+# Dev/Deployment
+numpy
+natsort
+scikit-image
