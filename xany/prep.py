@@ -1,3 +1,7 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 import numpy as np
 import glob as g
 import natsort as nts
@@ -6,6 +10,26 @@ from skimage.morphology import disk
 import scipy.signal as ss
 
 
+def findFiles(fdir, fstring='', ftype='h5', **kwds):
+    """
+    Retrieve files named in a similar way from a folder.
+    
+    :Parameters:
+        fdir : str
+            Folder name where the files are stored.
+        fstring : str | ''
+            Extra string in the filename.
+        ftype : str | 'h5'
+            Type of the files to retrieve.
+        **kwds : keyword arguments
+            Extra keywords for `natsorted()`.
+    """
+    
+    files = nts.natsorted(g.glob(fdir + fstring + '.' + ftype), **kwds)
+    
+    return files
+
+    
 def f_multichannel(data, f, ch_index=0, ch_range=[None, None], **kwds):
     """
     Repeated data processing for multiple channels.

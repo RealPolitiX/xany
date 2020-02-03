@@ -1,4 +1,5 @@
 # Dev/Deployment
 numpy
+scipy
 natsort
 scikit-image
