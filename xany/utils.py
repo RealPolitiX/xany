@@ -10,7 +10,7 @@ def riffle(*arr):
     Interleave multiple arrays of the same number of elements.
     :Parameter:
         *arr : array
-            A number of arrays
+            A number of arrays.
     :Return:
         riffarr : 1D array
             An array with interleaving elements from each input array.
@@ -39,6 +39,7 @@ def arraybin(arr, bins, method='mean'):
             Method for binning, 'mean' or 'sum'.
     :Return:
         arrbinned : nD array
+            Array after binning.
     """
 
     bins = np.asarray(bins)
@@ -46,6 +47,7 @@ def arraybin(arr, bins, method='mean'):
 
     if nb != arr.ndim:
         raise ValueError('Need to specify bins for all dimensions, use 1 for the dimensions not to be resized.')
+    
     else:
         shape = np.asarray(arr.shape)
         binnedshape = shape // bins
