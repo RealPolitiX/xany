@@ -172,3 +172,23 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
             imgcopy[uppos] = interpval
     
     return imgcopy
+
+
+    def sequentialCleaning(img, method='deterministic', hot_pixel_bound=None, pct=99, **kwds):
+        """
+        Sequential cleaning of nonphysical values (extremes and hot pixels) from an image.
+        """
+        
+        # Clean up the extreme values
+        imgtmp = restore(img, extremes=['inf', 'nan'], upbound=None, **kwds)
+        
+        # Clean up the additional hot pixels
+        if method == 'estimated':
+            if hot_pixel_bound is None:
+                hpub = np.percentile(imgtmp.ravel(), pct)
+            imgseqclean = restore(imgtmp, extremes=None, upbound=hpub, **kwds)
+
+        elif method == 'deterministic':
+            imgseqclean = restore(imgtmp, extremes=None, upbound=hot_pixel_bound, **kwds)
+        
+        return imseqclean

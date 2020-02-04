@@ -64,3 +64,26 @@ def arraybin(arr, bins, method='mean'):
             arrbinned = arr.reshape(shape_tuple).sum(axis=bin_axis_tuple)
 
         return arrbinned
+
+
+def dsearchByName(dct, string):
+    """ Searching dictionary entry by name.
+    
+    :Parameters:
+        dct : dict
+            Dictionary to search for entries.
+        string : str
+            Specific string to search in dictionary keys.
+            
+    :Return:
+        knames : list
+            A list of dictionary keys containing the specific string.
+    """
+    
+    knames = []
+    keys = [k for k in dct.keys()]
+    for k in keys:
+        if string in k:
+            knames.append(k)
+            
+    return knames
