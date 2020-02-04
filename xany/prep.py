@@ -8,6 +8,7 @@ import natsort as nts
 from skimage.filters.rank import median
 from skimage.morphology import disk
 import scipy.signal as ss
+from scipy import interpolate
 
 
 def findFiles(fdir, fstring='', ftype='h5', **kwds):
@@ -72,3 +73,63 @@ def remove_hotpixels(img, func='sk-median', **kwds):
         out = ss.medfilt2d(img/imsc, kernel_size=ksize)
     
     return out*imsc
+
+
+def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
+    """ 
+    Restore an image with irregularly distributed extreme values, including infinities, NaNs
+    and overly large values specified by an intensity threshhold.
+    
+    :Parameters:
+        img : ndarray
+            Multidimensional image data.
+        extremes : list | ['inf', 'nan']
+            Types of extreme values.
+        upbound : numeric | None
+            Upper bound of intensity value.
+        debug : bool | False
+            Option to go into debugging mode.
+        **kwds : keyword arguments
+            Keyword arguments for the interpolation function (``griddata``).
+        
+    :Return:
+        imgcopy : ndarray
+            Multidimensional image with restored intensity values.
+    """
+    
+    imgcopy = img.copy()
+    
+    if 'inf' in extremes:
+        infpos = np.where(np.isinf(imgcopy))
+        realpos = np.where(np.invert(np.isinf(imgcopy)))
+        
+        if debug:
+            print(infpos)
+        
+        if len(infpos[0]) > 0:
+            interpval = interpolate.griddata(realpos, imgcopy[realpos], infpos, **kwds)
+            imgcopy[infpos] = interpval
+    
+    if 'nan' in extremes:
+        nanpos = np.where(np.isnan(imgcopy))
+        realpos = np.where(np.invert(np.isnan(imgcopy)))
+        
+        if debug:
+            print(nanpos)
+            
+        if len(nanpos[0]) > 0:
+            interpval = interpolate.griddata(realpos, imgcopy[realpos], nanpos, **kwds)
+            imgcopy[nanpos] = interpval
+        
+    if upbound is not None:
+        uppos = np.where(imgcopy > upbound)
+        realpos = np.where(imgcopy <= upbound)
+        
+        if debug:
+            print(uppos)
+        
+        if len(uppos[0]) > 0:
+            interpval = interpolate.griddata(realpos, imgcopy[realpos], uppos, **kwds)
+            imgcopy[uppos] = interpval
+    
+    return imgcopy
