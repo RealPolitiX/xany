@@ -186,9 +186,46 @@ def sequentialCleaning(img, method='deterministic', hot_pixel_bound=None, pct=99
     if method == 'estimated':
         if hot_pixel_bound is None:
             hpub = np.percentile(imgtmp.ravel(), pct)
-        imgseqclean = restore(imgtmp, extremes=None, upbound=hpub, **kwds)
+        imgseqclean = restore(imgtmp, upbound=hpub, **kwds)
 
     elif method == 'deterministic':
         imgseqclean = restore(imgtmp, extremes=[], upbound=hot_pixel_bound, **kwds)
 
     return imgseqclean
+
+
+def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds):
+    """
+    Combine 2D images with different sizes into a stack and fill the extra space with a constant.
+    
+    :Parameters:
+        stack : list
+            List of differently sized images.
+        blocksize : list/tuple
+            Size of the image in each subsection of the stack.
+        mode : str | 'constant'
+            Image padding method.
+        constant_values : numeric | 0
+            Values padded to the images.
+            
+    :Return:
+        block : ndarray
+            Padded images combined into a block.
+    """
+    
+    block = []
+    
+    # Determine the minimum size needed to contain all arrays, estimate if not provided directly
+    if blocksize is None:
+        shapes = np.array([s.shape for s in stack])
+        blkr, blkc = np.max(shapes, axis=0)
+    else:
+        blkr, blkc = blocksize
+    
+    for ist, im in enumerate(stack):
+        imr, imc = im.shape
+        block.append(np.pad(im, [[blkr-imr, 0], [blkc-imc, 0]], mode=mode, constant_values=constant_values, **kwds))
+    
+    block = np.asarray(block)
+    
+    return block
