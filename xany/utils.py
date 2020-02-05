@@ -87,3 +87,33 @@ def dsearchByName(dct, string):
             knames.append(k)
             
     return knames
+
+
+def saveImstack(block, form='tiff', axis=0, fdir='./', fstring='', dtype=None, **kwds):
+    """ Output image stack as single images.
+    """
+    
+    if form == 'tiff':
+        
+        import tifffile as ti
+        block = np.rollaxis(block, axis, 0)
+        nim = block.shape[0]
+        imseq = kwds.pop('seqstr', list(range(nim)))
+        
+        try:
+            digitlen = len(list(np.max(np.abs(np.array(imseq)))))
+        except:
+            pass
+        finally:
+            digitlen = 3
+        
+        for i in range(nim):
+            if dtype is not None:
+                imslice = block[i,...]
+            else:
+                imslice = block[i,...].astype(dtype)
+            
+            ti.imsave(fdir + fstring + str(imseq[i]).zfill(digitlen) + '.tiff', data=imslice, **kwds)
+            
+    else:
+        raise NotImplementedError

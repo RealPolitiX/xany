@@ -186,7 +186,7 @@ def sequentialCleaning(img, method='deterministic', hot_pixel_bound=None, pct=99
     if method == 'estimated':
         if hot_pixel_bound is None:
             hpub = np.percentile(imgtmp.ravel(), pct)
-        imgseqclean = restore(imgtmp, upbound=hpub, **kwds)
+        imgseqclean = restore(imgtmp, extremes=[], upbound=hpub, **kwds)
 
     elif method == 'deterministic':
         imgseqclean = restore(imgtmp, extremes=[], upbound=hot_pixel_bound, **kwds)
