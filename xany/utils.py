@@ -8,9 +8,11 @@ import numpy as np
 def riffle(*arr):
     """
     Interleave multiple arrays of the same number of elements.
+    
     :Parameter:
         *arr : array
             A number of arrays.
+    
     :Return:
         riffarr : 1D array
             An array with interleaving elements from each input array.
@@ -30,6 +32,7 @@ def riffle(*arr):
 def arraybin(arr, bins, method='mean'):
     """
     Resize an nD array by binning.
+    
     :Parameters:
         arr : nD array
             N-dimensional array for binning.
@@ -37,6 +40,7 @@ def arraybin(arr, bins, method='mean'):
             Bins/Size shrinkage along every axis.
         method : str
             Method for binning, 'mean' or 'sum'.
+    
     :Return:
         arrbinned : nD array
             Array after binning.
@@ -90,7 +94,21 @@ def dsearchByName(dct, string):
 
 
 def saveImstack(block, form='tiff', axis=0, fdir='./', fstring='', dtype=None, **kwds):
-    """ Output image stack as single images.
+    """
+    Output 3d image stack as single 2d images.
+
+    :Parameters:
+        block : 3d array
+            3D stack of images.
+        form : str | 'tiff'
+            Format the images are saved into.
+        axis : numeric | 0
+            Axis index along which the images are stacked.
+        fdir, fstring : str, str | './', ''
+            Folder and file path string used in saving the image files.
+        dtype : str | None
+            Data type to convert the image matrices into.
+        **kwds : keyword arguments 
     """
     
     if form == 'tiff':

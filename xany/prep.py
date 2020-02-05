@@ -222,7 +222,7 @@ def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds)
     else:
         blkr, blkc = blocksize
     
-    for ist, im in enumerate(stack):
+    for im in stack:
         imr, imc = im.shape
         block.append(np.pad(im, [[blkr-imr, 0], [blkc-imc, 0]], mode=mode, constant_values=constant_values, **kwds))
     
