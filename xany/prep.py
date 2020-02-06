@@ -31,6 +31,19 @@ def findFiles(fdir, fstring='', ftype='h5', **kwds):
     return files
 
 
+def stringFinder(filenames, string, ret='index'):
+    """
+    Find the file and index among a list of filenames.
+    """
+    
+    if ret == 'index':
+        nfiles = len(filenames)
+        return [ind for ind in range(nfiles) if string in filenames[ind]]
+    
+    elif ret == 'filename':
+        return [fn for fn in filenames if string in fn]
+
+
 def orderFiles(files, seqnum, nzf=0, verbose=False):
     """ 
     Order files according to a sequence string in the filename.
