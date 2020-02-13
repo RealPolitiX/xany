@@ -124,6 +124,36 @@ def remove_hotpixels(img, func='sk-median', **kwds):
     return out*imsc
 
 
+def remove_patch(img, seqs=None, axis=0, method='to_nan'):
+    """ Remove or nanify affected lines or patches in data.
+    
+    :Parameters:
+        img : 2d array
+        seqs : list/tuple | None
+        axis : int | 0
+        method : str | 'to_nan'
+    
+    :Return:
+        imgout : 2d array
+            Image with specified patch removed or nanified.
+    """
+    
+    shape = img.shape
+    
+    if method == 'delete':
+        imgout = np.delete(img, seqs, axis)
+        
+    elif method == 'to_nan':
+        imgout = img.copy()
+        
+        for s in seqs:
+            del_coords = np.stack(np.meshgrid([s], np.arange(shape[1-axis])), axis=2).squeeze()
+            del_coords = np.roll(del_coords, shift=1*axis, axis=axis)
+            imgout[del_coords[:,0], del_coords[:,1]] = np.nan
+            
+    return imgout
+
+
 def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
     """ 
     Restore an image with irregularly distributed extreme values, including infinities, NaNs
