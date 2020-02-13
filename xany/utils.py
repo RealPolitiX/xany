@@ -5,6 +5,31 @@
 import numpy as np
 
 
+def angles(agstart, agend, step, seqrmv=[], to_radians=True):
+    """ Generate a set of angles including missing values.
+    
+    :Parameters:
+        agstart, agend, step : numeric, numeric, numeric
+            Starting, ending and the interval of angles.
+        seqrmv : list | []
+            Sequence number of angles to remove.
+        to_radians : bool | True
+            Option to convert to radians.
+    
+    :Return:
+        ags : 1d array
+            Array of angles including missing values
+    """
+    
+    ags = np.arange(agstart, agend, step)
+    ags = np.delete(ags, seqrmv)
+    
+    if to_radians:
+        ags = np.radians(ags)
+        
+    return ags
+
+    
 def riffle(*arr):
     """
     Interleave multiple arrays of the same number of elements.
