@@ -237,6 +237,38 @@ def sequentialCleaning(img, method='deterministic', hot_pixel_bound=None, pct=99
     return imgseqclean
 
 
+def recursiveCleaning(img, n=1, verbose=False, **kwds):
+    """
+    Recursively clean an image corrupted by extreme values.
+    
+    :Parameters:
+        img : 2d array
+            Image to clean.
+        n : int | 1
+            Number of iterations.
+        verbose : bool | False
+            Option to specify if printing out the number of iterations is needed.
+        **kwds : keyword arguments
+            Extra arguments for ``xany.prep.restore()``.
+    
+    :Return:
+        imgcln : 2d array
+            Image after cleaning.
+    """
+    
+    imgcln = img.copy()
+    n = int(n)
+    nt = 0
+    
+    while nt < n:
+        if verbose:
+            print('Cleaning round #' + str(nt) + ' ...')
+        imgcln = restore(imgcln, **kwds)
+        nt += 1
+        
+    return imgcln
+
+
 def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds):
     """
     Combine 2D images with different sizes into a stack and fill the extra space with a constant.
