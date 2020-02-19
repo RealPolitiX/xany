@@ -179,7 +179,7 @@ def remove_patch(img, seqs=None, axis=0, method='to_nan'):
     return imgout
 
 
-def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
+def restore(img, extremes=['inf', 'nan'], upbound=None, lobound=None, debug=False, **kwds):
     """ 
     Restore an image with irregularly distributed extreme values, including infinities, NaNs
     and overly large values specified by an intensity threshhold.
@@ -203,7 +203,7 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
     
     imgcopy = img.copy()
     
-    # Correct for infinity values
+    # Correct infinity values
     if 'inf' in extremes:
         infpos = np.where(np.isinf(imgcopy))
         realpos = np.where(np.invert(np.isinf(imgcopy)))
@@ -215,7 +215,7 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
             interpval = interpolate.griddata(realpos, imgcopy[realpos], infpos, **kwds)
             imgcopy[infpos] = interpval
     
-    # Correct for NaN values
+    # Correct NaN values
     if 'nan' in extremes:
         nanpos = np.where(np.isnan(imgcopy))
         realpos = np.where(np.invert(np.isnan(imgcopy)))
@@ -227,17 +227,29 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, debug=False, **kwds):
             interpval = interpolate.griddata(realpos, imgcopy[realpos], nanpos, **kwds)
             imgcopy[nanpos] = interpval
     
-    # Correct for overly large intensity values specified by an upper bound
+    # Correct overly large intensity values specified by an upper bound
     if upbound is not None:
-        uppos = np.where(imgcopy > upbound)
+        errpos = np.where(imgcopy > upbound)
         realpos = np.where(imgcopy <= upbound)
-        
+
         if debug:
-            print(uppos)
+            print(errpos)
         
-        if len(uppos[0]) > 0:
-            interpval = interpolate.griddata(realpos, imgcopy[realpos], uppos, **kwds)
-            imgcopy[uppos] = interpval
+        if len(errpos[0]) > 0:
+            interpval = interpolate.griddata(realpos, imgcopy[realpos], errpos, **kwds)
+            imgcopy[errpos] = interpval
+
+    # Correct overly small intensity values (i.e. near-zero) specified by an lower bound
+    if lobound is not None:
+        errpos = np.where(imgcopy < lobound)
+        realpos = np.where(imgcopy >= lobound)
+    
+        if debug:
+            print(errpos)
+        
+        if len(errpos[0]) > 0:
+            interpval = interpolate.griddata(realpos, imgcopy[realpos], errpos, **kwds)
+            imgcopy[errpos] = interpval
     
     return imgcopy
 
