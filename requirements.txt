@@ -4,3 +4,4 @@ scipy
 natsort
 scikit-image
 tomopy
+h5py
