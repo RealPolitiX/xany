@@ -306,6 +306,34 @@ def recursiveCleaning(img, n=1, verbose=False, **kwds):
     return imgcln
 
 
+def fusionScaler(ima, imb, offset=5, axis=1, toscale='a'):
+    """
+    Global intensity scaling of images along one direction
+    """
+    
+    # Determine the intensity ratio
+    if axis == 0:
+        asum = ima[-offset:,:].sum()
+        bsum = imb[:offset, :].sum()
+    elif axis == 1:
+        asum = ima[:, -offset:].sum()
+        bsum = imb[:, :offset].sum()
+    else:
+        raise ValueError('Scaling factors can only be calculated along axis 0 or 1.')
+        
+    # Scale the image according to designation
+    if toscale == 'a':
+        imasc = ima * (bsum / asum)
+        imbsc = imb.copy()
+    elif toscale == 'b':
+        imasc = ima.copy()
+        imbsc = imb * (asum / bsum)
+    else:
+        raise ValueError('Scaling is designated to one image, a or b.')
+        
+    return imasc, imbsc
+
+
 def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds):
     """
     Combine 2D images with different sizes into a stack and fill the extra space with a constant.
