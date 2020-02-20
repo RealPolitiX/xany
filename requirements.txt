@@ -5,3 +5,4 @@ natsort
 scikit-image
 tomopy
 h5py
+raster_geometry

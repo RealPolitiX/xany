@@ -34,6 +34,14 @@ def findFiles(fdir, fstring='', ftype='h5', **kwds):
 def stringFinder(filenames, string, ret='index'):
     """
     Find the file and index among a list of filenames.
+
+    :Parameters:
+        filenames : list/tuple
+            Collection of filenames.
+        string : str
+            A key string to look for in a filename.
+        ret : str | 'index'
+            Options for return values ('index' or 'filename').
     """
     
     if ret == 'index':
@@ -189,8 +197,8 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, lobound=None, debug=Fals
             Multidimensional image data.
         extremes : list | ['inf', 'nan']
             Types of extreme values.
-        upbound : numeric | None
-            Upper bound of intensity value.
+        upbound, lobound : numeric, numeric | None, None
+            Upper and lower bounds of the intensity value used to separate normal from abnormal pixels.
         debug : bool | False
             Option to go into debugging mode.
         **kwds : keyword arguments
