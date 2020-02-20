@@ -308,7 +308,21 @@ def recursiveCleaning(img, n=1, verbose=False, **kwds):
 
 def fusionScaler(ima, imb, offset=5, axis=1, toscale='a'):
     """
-    Global intensity scaling of images along one direction
+    Global intensity scaling of images along one direction for image fusion.
+
+    :Parameters:
+        ima, imb : 2d array, 2d array
+            Two images to fuse together.
+        offset : int
+            Pixel offset along the seam to fuse.
+        axis : int | 1
+            Axis along which to fuse the images (0 = row, 1 = column).
+        toscale : str | 'a'
+            Name of the image to apply the global scaling to ('a' or 'b').
+
+    :Return:
+        imasc, imbsc : 2d array, 2d array
+            Two images after global intensity scaling (ready to fuse).
     """
     
     # Determine the intensity ratio
