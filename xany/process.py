@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from . import utils as u, prep as pp
 import numpy as np
 import numpy.fft as nfft
 import scipy.ndimage as ndi
 from skimage import transform as trf
 import raster_geometry as rg
 from tomopy import *
+
 
 def applyShifts(imgs, shifts=None, interp_order=5, **kwds):
     """
@@ -135,3 +137,141 @@ def calculateFSC(vol, ref, step=1):
         fsc_ls.append(fsc)
 
     return np.array(fsc_ls)
+
+
+class TomoRecon(object):
+    """
+    Class for streamlined workflow of tomographic reconstruction including files preparation.
+    """
+    
+    def __init__(self, tgrams=None, tblock=None, axis=0):
+        
+        self.tomograms = tgrams
+        self.tomoblock = tblock
+        self.axis = axis
+        
+    def locate_files(self, fdir, ftype='tiff', fkwds={}, seqnum=None, **kwds):
+        """ Locate and order tomogram files.
+        """
+        
+        self.files = pp.findFiles(fdir=fdir, ftype=ftype)
+        if seqnum is not None:
+            self.ordfiles = pp.orderFiles(self.files, seqnum=seqnum, **kwds)
+        else:
+            self.ordfiles = list(self.files)
+        
+    def load_tomograms(self, fsource, ftype='tiff', **kwds):
+        """ Load tomograms one by one.
+        """
+        
+        self.tomograms = []
+        
+        if ftype == 'tiff':
+            
+            import tifffile as ti
+            for f in fsource:
+                self.tomograms.append(ti.imread(f, **kwds))
+                    
+        elif ftype == 'h5':
+            
+            for f in fsource:
+                self.tomograms.append(pp.loadH5Parts(f, **kwds))
+            
+        else:
+            
+            raise NotImplementedError
+            
+    def blocking(self, **kwds):
+        """ Adjust the tomograms to have the same shape.
+        """
+        
+        self.tomoblock = pp.fillBlock(**kwds)
+        
+    def generate_angles(self, **kwds):
+        """ Generate angles associated with each tomogram.
+        """
+        
+        self.angles = u.angles(**kwds)
+        
+    def delete_angles(self, **kwds):
+        """ Delete a part of angles from the existing list.
+        """
+        
+        self.angles = np.delete(self.angles, **kwds)
+        
+    @property
+    def nangles(self):
+        """ Number of angles.
+        """
+        
+        return len(self.angles)
+    
+    @property
+    def ngrams(self):
+        """ Number of tomograms.
+        """
+        
+        return self.tomoblock.shape[0]
+        
+    def delete_tomograms(self, ids, tgrams, assign_to=None, ret=False, **kwds):
+        """ Remove one or more tomograms from an existing sequence.
+        """
+        
+        if type(tgrams) == list:
+            if ids:
+                temp = list(tgrams[i] for i in range(len(tgrams)) if i not in ids)
+                
+        elif type(tgrams) == np.ndarray:
+            temp = np.delete(tgrams, obj=ids, **kwds)
+            
+        if assign_to is not None:
+            assign_to = temp
+        
+        if ret:
+            return temp
+    
+    def intensity_scale(self, tgrams, axis):
+        """ Scale the intensity of tomograms along a specified axis.
+        """
+        
+        if type(tgrams) == list:
+            pass
+        elif type(tgrams) == np.ndarray:
+            pass
+        
+    def pad_tomogram(self, tgrams, assign_to=None, ret=False, **kwds):
+        """ Padding tomograms in various direction.
+        """
+        
+        if type(tgrams) == list:
+            temp = [np.pad(tg, **kwds) for tg in tgrams]
+        elif type(tgrams) == np.ndarray:
+            temp = np.pad(tgrams, **kwds)
+        
+        if assign_to is not None:
+            assign_to = temp
+            
+        if ret:
+            return temp
+    
+    def reconstruct(self, use_accelerated=False, ret=False, **kwds):
+        """ Tomographic reconstruction using the algorithms within ``tomopy``.
+        """
+        
+        if use_accelerated:
+            self.recout = recon_accelerated(**kwds)
+        else:
+            self.recout = recon(**kwds)
+        
+        if ret:
+            return self.recout
+        
+    def save(self, savedir, ftype='tiff'):
+        """ Save the reconstruction output to 
+        """
+        pass
+    
+    def save_internals(self):
+        """ Save the internal variables of the class
+        """
+        pass
