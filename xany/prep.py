@@ -331,6 +331,8 @@ def fusionScaler(ima, imb, offset=5, axis=1, toscale='a'):
     :Return:
         imasc, imbsc : 2d array, 2d array
             Two images after global intensity scaling (ready to fuse).
+        scale : list
+            Scaling parameters applied to the two images.
     """
     
     # Determine the intensity ratio
@@ -347,13 +349,15 @@ def fusionScaler(ima, imb, offset=5, axis=1, toscale='a'):
     if toscale == 'a':
         imasc = ima * (bsum / asum)
         imbsc = imb.copy()
+        scale = [bsum / asum, 1]
     elif toscale == 'b':
         imasc = ima.copy()
         imbsc = imb * (asum / bsum)
+        scale = [1, asum / bsum]
     else:
         raise ValueError('Scaling is designated to one image, a or b.')
         
-    return imasc, imbsc
+    return imasc, imbsc, scale
 
 
 def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds):
