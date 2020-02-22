@@ -56,7 +56,8 @@ def applyShifts(imgs, shifts=None, interp_order=5, **kwds):
 
 
 def sphere(rad, outsize, method='algebraic', anti_aliasing=5, smoothing=True):
-    """ Generate a spherical mask (outside 0, inside 1).
+    """
+    Generate a spherical mask (outside 0, inside 1).
 
     :Parameters:
         rad : numeric
@@ -150,11 +151,11 @@ class TomoRecon(object):
         self.tomoblock = tblock
         self.axis = axis
         
-    def locate_files(self, fdir, ftype='tiff', fkwds={}, seqnum=None, **kwds):
+    def locate_files(self, fdir, fstring='', ftype='tiff', seqnum=None, **kwds):
         """ Locate and order tomogram files.
         """
         
-        self.files = pp.findFiles(fdir=fdir, ftype=ftype)
+        self.files = pp.findFiles(fdir=fdir, fstring=fstring, ftype=ftype)
         if seqnum is not None:
             self.ordfiles = pp.orderFiles(self.files, seqnum=seqnum, **kwds)
         else:
