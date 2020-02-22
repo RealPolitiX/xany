@@ -87,7 +87,7 @@ def orderFiles(files, seqnum, nzf=0, verbose=False):
     return fordered
 
 
-def loadH5Parts(filename, content, alias=None):
+def loadH5Parts(filename, content, outtype='dict', alias=None):
     """
     Load specified content from a single complex HDF5 file.
     
@@ -109,7 +109,12 @@ def loadH5Parts(filename, content, alias=None):
             else:
                 outdict = {ka: f[k][:] for k in content for ka in alias}
     
-    return outdict
+    if outtype == 'dict':
+        return outdict
+    elif outtype == 'list':
+        return list(outdict.items())
+    elif outtype == 'vals':
+        return list(outdict.values())
 
     
 def f_multichannel(data, f, ch_index=0, ch_range=[None, None], **kwds):
