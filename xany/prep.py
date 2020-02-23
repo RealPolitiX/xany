@@ -96,6 +96,8 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
             Namestring of the file.
         content : list/tuple
             Collection of names for the content to retrieve.
+        outtype : str | 'dict'
+            Option to specify the format of output ('dict', 'list', 'vals').
         alias : list/tuple | None
             Collection of aliases to assign to each entry in content in the output dictionary.
     """
@@ -269,7 +271,24 @@ def restore(img, extremes=['inf', 'nan'], upbound=None, lobound=None, debug=Fals
 
 def sequentialCleaning(img, method='deterministic', hot_pixel_bound=None, pct=99, **kwds):
     """
-    Sequential cleaning of nonphysical values (extremes and hot pixels) from an image.
+    Two-stage sequential cleaning of nonphysical values (extremes and hot pixels) from an image.
+    
+    :Parameters:
+        img : 2d array
+            Image to clean up.
+        method : str | 'deterministic'
+            Cleaning method option ('deterministic' uses a hard intensity threshold,
+            'estimated' use a probabilistic threshold set by percentile)
+        hot_pixel_bound : numeric | None
+            Hot pixel intensity threshold (see ``xany.prep.restore()``).
+        pct : numeric | 99
+            Hot pixel percentile threshold.
+        **kwds : keyword arguments
+            Additional arguments from ``xany.prep.restore()``.
+
+    :Return:
+        imgseqclean : 2d array
+            Cleaned-up image.
     """
 
     # Clean up the extreme values
