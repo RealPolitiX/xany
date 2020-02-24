@@ -433,8 +433,7 @@ def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds)
     
     # Determine the minimum size needed to contain all arrays, estimate if not provided directly
     if blocksize is None:
-        shapes = np.array([s.shape for s in stack])
-        blkr, blkc = np.max(shapes, axis=0)
+        blkr, blkc = sizeBlock(stack, stype='max')
     else:
         blkr, blkc = blocksize
     
