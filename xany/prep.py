@@ -384,6 +384,32 @@ def fusionScaler(ima, imb, offset=5, axis=1, toscale='a'):
     return imasc, imbsc, scale
 
 
+def sizeBlock(stack, stype='max'):
+    """
+    Check the sizes of a stack of images.
+    
+    :Parameters:
+        stack : list/tuple/ndarray
+            A collection of images in a stack.
+        stype : str | 'max'
+            The size information to calculate ('max', 'min', 'mean').
+    
+    :Return:
+        outsize : ndarray
+            Calculated size information.
+    """
+    
+    sizes = np.array(list(map(np.shape, stack)))
+    if stype == 'max':
+        outsize = np.max(sizes, axis=0)
+    elif stype == 'min':
+        outsize = np.min(sizes, axis=0)
+    elif stype == 'mean':
+        outsize = np.mean(sizes, axis=0).astype('int')
+        
+    return outsize
+
+
 def fillBlock(stack, blocksize=None, mode='constant', constant_values=0, **kwds):
     """
     Combine 2D images with different sizes into a stack and fill the extra space with a constant.
