@@ -104,12 +104,12 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
     
     with File(filename) as f:
         if alias is None:
-            outdict = {k: f[k][:] for k in content}
+            outdict = {k: np.array(f[k]) for k in content}
         else:
             if len(content) != len(alias):
                 raise ValueError('Not every content entry is assigned an alias!')
             else:
-                outdict = {ka: f[k][:] for k in content for ka in alias}
+                outdict = {ka: np.array(f[k]) for k in content for ka in alias}
     
     if outtype == 'dict':
         return outdict
@@ -118,7 +118,7 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
     elif outtype == 'vals':
         return list(outdict.values())
 
-    
+
 def f_multichannel(data, f, ch_index=0, ch_range=[None, None], **kwds):
     """
     Repeated data processing for multiple channels.
