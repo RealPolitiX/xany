@@ -276,3 +276,29 @@ class TomoRecon(object):
         """ Save the internal variables of the class
         """
         pass
+
+
+def ImtoVTK(imdir, form='tiff', outdir='./', **kwargs):
+    """ Convert image files to VTK files.
+    """
+    
+    # Load the image into array
+    if form in ['tif', 'tiff']:
+        import tifffile as ti
+        imarray = ti.imread(imdir)
+    
+    typ = kwargs.pop('dtype', '')
+    if typ:
+        imarray = imarray.astype(typ)
+    
+    imshape = imarray.shape
+    pointVar = kwargs.pop('pointVar', 'image')
+    cellVar = kwargs.pop('cellVar', 'spacing')
+    pData = kwargs.pop('pointData', imarray)
+    cData = kwargs.pop('cellData', np.array([]))
+    
+    import pyevtk.hl as hl
+    if cData:
+        hl.imageToVTK(outdir, cellData={cellVar:cData}, pointData={pointVar:pData})
+    else:
+        hl.imageToVTK(outdir, cellData=None, pointData={pointVar:pData})
