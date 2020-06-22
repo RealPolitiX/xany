@@ -178,4 +178,4 @@ def rectcut(img, axis=0, ret='image'):
     elif ret == 'index':
         return nzind[0], nzind[-1]
     elif ret == 'all':
-        return imgcut, nzind[0], nzind[-1]
+        return imgcut, (nzind[0], nzind[-1])
