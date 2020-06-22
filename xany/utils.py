@@ -159,3 +159,21 @@ def saveImstack(block, form='tiff', axis=0, fdir='./', fstring='', dtype=None, *
             
     else:
         raise NotImplementedError
+
+
+def rectcut(img, axis=0, ret='image'):
+    """ Cut to rectangular image.
+    """
+    
+    imgcut = img.copy()
+    if axis != 0:
+        imgcut = np.rollaxis(imgcut, axis, 0)
+        
+    minint = np.min(imgcut, axis=(1, 2))
+    nzind = np.where(minint > 0)[0]
+    imgcut = imgcut[nzind[0]:nzind[-1],...]
+    
+    if ret == 'image':
+        return imgcut
+    elif ret == 'index':
+        return nzind[0], nzind[-1]

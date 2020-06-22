@@ -291,7 +291,7 @@ def ImtoVTK(imdir, form='tiff', outdir='./', **kwargs):
     if typ:
         imarray = imarray.astype(typ)
     
-    imshape = imarray.shape
+    # imshape = imarray.shape
     pointVar = kwargs.pop('pointVar', 'image')
     cellVar = kwargs.pop('cellVar', 'spacing')
     pData = kwargs.pop('pointData', imarray)
