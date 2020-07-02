@@ -7,3 +7,4 @@ tomopy
 h5py
 raster_geometry
 symmetrize
+tdqm

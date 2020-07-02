@@ -3,6 +3,7 @@
 
 import numpy as np
 from symmetrize import sym
+from tqdm import notebook as nb
 
 
 def imextend(img, xtrans=0, ytrans=0, **kwds):
@@ -47,3 +48,28 @@ def impairshift(ima, imb, ret='separate', **kwds):
         imbsh[:, ashape[1]-xsh:ashape[1]] *= xscal[::-1]
         imabsh = imash + imbsh
         return imabsh
+
+
+def stack_combine(stacka, stackb, axis=0, zsh=0, pbar=True, **kwds):
+    """ Combining two stacks using alignment cues.
+    
+    :Parameters:
+        stacka, stackb : numpy array, numpy array
+            Image stacks (3D) to combine.
+        axis : int | 0
+            Axis of stacking.
+        zsh : int | 0
+            Shift of `stackb` along the stacking axis.
+    """
+    
+    dmerg = np.min([stacka.shape[axis], stackb.shape[axis]]) # Determine the number of along the axis
+    stackA, stackB = np.moveaxis(stacka, axis, 0), np.moveaxis(stackb, axis, 0)
+    
+    stackm = []
+    for i in nb.tqdm(range(dmerg), disable=not(pbar)):
+        abmerge = impairshift(stackA[nslice,...], stackB[nslice+zsh,...], ret='combined', **kwds)
+        stackm.append(abmerge.tolist())
+        
+    stackm = np.asarray(stackm)
+    
+    return stackm
