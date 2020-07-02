@@ -1,5 +1,5 @@
 # xany
-Integrated X-ray imaging and spectroscopy data processing
+Integrated X-ray imaging and spectroscopy and lightsheet microscopy data processing
 
 ### Installation
 
