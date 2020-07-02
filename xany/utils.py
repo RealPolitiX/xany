@@ -179,3 +179,25 @@ def rectcut(img, axis=0, ret='image'):
         return nzind[0], nzind[-1]
     elif ret == 'all':
         return imgcut, (nzind[0], nzind[-1])
+
+
+def inorm(arr, axis, axrange, op=np.mean, meth='div'):
+    """ Intensity normalization by a part of the array.
+    
+    :Paramters:
+        arr : numpy array
+        axis : int
+        axrange : list/tuple/numpy array
+        op : func | np.mean
+        meth : str | 'div'
+    """
+    
+    arrex = np.moveaxis(arr, axis, 0)
+    normmat = op(arrex[axrange[0]:axrange[1],...], axis=0)
+    if meth == 'div':
+        arrnorm = arrex / normmat
+    elif meth == 'minus':
+        arrnorm = arrex - normmat
+    arrnorm = np.moveaxis(arrnorm, 0, axis)
+    
+    return arrnorm
