@@ -33,17 +33,17 @@ def impairshift(ima, imb, ret='separate', **kwds):
     """
     
     ashape, bshape = ima.shape, imb.shape
-    xsh = kwds.pop('xsh', int(np.max([ashape[1], bshape[1]])))
-    ysh = kwds.pop('ysh', int(np.max([ashape[0], bshape[0]])))
+    xsh = kwds.pop('xsh', 0)
+    ysh = kwds.pop('ysh', 0)
     
-    imash = imextend(ima, xtrans=0, ytrans=0, xshift=xsh-ashape[1], yshift=ysh-ashape[0])
-    imbsh = imextend(imb, xtrans=bshape[1]-xsh, ytrans=bshape[0]-ysh)    
+    imash = imextend(ima, xtrans=0, ytrans=0, xshift=xsh-bshape[1], yshift=ysh)
+    imbsh = imextend(imb, xtrans=ashape[1]-xsh, ytrans=ysh)    
     
     if ret == 'separate':
         return imash, imbsh
     
     elif ret == 'combined':
-        xscal = np.linspace(1, 0, xsh, endpoint=True) # Boundary blending
+        xscal = np.linspace(1, 0, xsh, endpoint=True) # Boundary blending scale
         imash[:, ashape[1]-xsh:ashape[1]] *= xscal
         imbsh[:, ashape[1]-xsh:ashape[1]] *= xscal[::-1]
         imabsh = imash + imbsh
@@ -66,8 +66,8 @@ def stack_combine(stacka, stackb, axis=0, zsh=0, pbar=True, **kwds):
     stackA, stackB = np.moveaxis(stacka, axis, 0), np.moveaxis(stackb, axis, 0)
     
     stackm = []
-    for i in nb.tqdm(range(dmerg), disable=not(pbar)):
-        abmerge = impairshift(stackA[nslice,...], stackB[nslice+zsh,...], ret='combined', **kwds)
+    for i in nb.tqdm(range(dmerg-zsh), disable=not(pbar)):
+        abmerge = impairshift(stackA[i,...], stackB[i+zsh,...], ret='combined', **kwds)
         stackm.append(abmerge.tolist())
         
     stackm = np.asarray(stackm)
