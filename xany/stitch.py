@@ -73,3 +73,23 @@ def stack_combine(stacka, stackb, axis=0, zsh=0, pbar=True, **kwds):
     stackm = np.asarray(stackm)
     
     return stackm
+
+
+def axcombine(ima, imb, offa=None, offb=None, axis=0):
+    """ Combine images along a specified direction.
+    
+    :Parameters:
+        ima, imb : ndarray, ndarray
+            Images to combine.
+        offa, offb : int,  int
+            Sizes of offsets along the combination axis.
+        axis : int
+            Axis to combine.
+    """
+    
+    ima = np.moveaxis(ima, axis, 0)
+    imb = np.moveaxis(imb, axis, 0)
+    ashape, bshape = ima.shape, imb.shape
+    newim = np.concatenate((ima[:offa,...].copy(), imb[offb:,...].copy()), axis=0)
+    
+    return newim
