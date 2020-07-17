@@ -60,6 +60,10 @@ def stack_combine(stacka, stackb, axis=0, zsh=0, pbar=True, **kwds):
             Axis of stacking.
         zsh : int | 0
             Shift of `stackb` along the stacking axis.
+        pbar : bool | True
+            Option to include a progress bar.
+        **kwds : keyword arguments
+            Additional arguments from ``xany.stitch.impairshift()``.
     """
     
     dmerg = np.min([stacka.shape[axis], stackb.shape[axis]]) # Determine the number of along the axis
@@ -89,7 +93,6 @@ def axcombine(ima, imb, offa=None, offb=None, axis=0):
     
     ima = np.moveaxis(ima, axis, 0)
     imb = np.moveaxis(imb, axis, 0)
-    ashape, bshape = ima.shape, imb.shape
-    newim = np.concatenate((ima[:offa,...].copy(), imb[offb:,...].copy()), axis=0)
+    combined = np.concatenate((ima[:offa,...].copy(), imb[offb:,...].copy()), axis=0)
     
-    return newim
+    return combined
