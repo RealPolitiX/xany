@@ -33,17 +33,17 @@ def impairshift(ima, imb, ret='separate', **kwds):
     """
     
     ashape, bshape = ima.shape, imb.shape
-    xsh = kwds.pop('xsh', 0)
-    ysh = kwds.pop('ysh', 0)
+    xsh = kwds.pop('xsh', int(np.max([ashape[1], bshape[1]])))
+    ysh = kwds.pop('ysh', int(np.max([ashape[0], bshape[0]])))
     
     imash = imextend(ima, xtrans=0, ytrans=0, xshift=xsh-bshape[1], yshift=ysh)
-    imbsh = imextend(imb, xtrans=ashape[1]-xsh, ytrans=ysh)    
+    imbsh = imextend(imb, xtrans=ashape[1]-xsh, ytrans=np.abs(ashape[0]-bshape[0])+ysh)
     
     if ret == 'separate':
         return imash, imbsh
     
     elif ret == 'combined':
-        xscal = np.linspace(1, 0, xsh, endpoint=True) # Boundary blending scale
+        xscal = np.linspace(1, 0, xsh, endpoint=True) # Boundary blending
         imash[:, ashape[1]-xsh:ashape[1]] *= xscal
         imbsh[:, ashape[1]-xsh:ashape[1]] *= xscal[::-1]
         imabsh = imash + imbsh
