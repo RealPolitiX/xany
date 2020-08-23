@@ -17,7 +17,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name="xany",
     version="0.6.2",
-    url="https://github.com/RealPolitiX/symmetrize",
+    url="https://github.com/RealPolitiX/xany",
 
     author="R. Patrick Xian",
     author_email="xrpatrick@gmail.com",
