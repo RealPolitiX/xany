@@ -140,15 +140,14 @@ def calculateFSC(vol, ref, step=1):
     return np.array(fsc_ls)
 
 
-class TomoRecon(object):
-    """
-    Class for streamlined workflow of tomographic reconstruction including files preparation.
+class ImageStack(object):
+    """ Class for processing a series of projection images in a tomography experiment.
     """
     
-    def __init__(self, tgrams=None, tblock=None, axis=0):
+    def __init__(self, images=None, stack=None, axis=0):
         
-        self.tomograms = tgrams
-        self.tomoblock = tblock
+        self.images = images
+        self.stack = stack
         self.axis = axis
         
     def locate_files(self, fdir, fstring='', ftype='tiff', seqnum=None, **kwds):
@@ -161,7 +160,7 @@ class TomoRecon(object):
         else:
             self.ordfiles = list(self.files)
         
-    def load_tomograms(self, fsource, ftype='tiff', **kwds):
+    def load_stack(self, fsource, ftype='tiff', selector=None, **kwds):
         """ Load tomograms one by one.
         """
         
@@ -171,16 +170,29 @@ class TomoRecon(object):
             
             import tifffile as ti
             for f in fsource:
-                self.tomograms.append(ti.imread(f, **kwds))
-                    
+                self.stack.append(ti.imread(f, **kwds))
+                
         elif ftype == 'h5':
             
             for f in fsource:
-                self.tomograms.append(pp.loadH5Parts(f, **kwds))
+                self.stack.append(pp.loadH5Parts(f, **kwds)[0][selector])     
             
         else:
             
             raise NotImplementedError
+
+
+class TomoReconstructor(ImageStack):
+    """
+    Class for streamlined workflow of tomographic reconstruction including files preparation.
+    """
+    
+    def __init__(self, tgrams=None, tblock=None, axis=0):
+
+        super().__init__(images=tgrams, stack=tblock, axis=axis)
+        
+        self.tomograms = self.images
+        self.tomoblock = self.stack
             
     def blocking(self, **kwds):
         """ Adjust the tomograms to have the same shape.
@@ -214,46 +226,49 @@ class TomoRecon(object):
         
         return self.tomoblock.shape[0]
         
-    def delete_tomograms(self, ids, tgrams, assign_to=None, ret=False, **kwds):
+    def delete_tomograms(self, ids, in_place=True, ret=False, **kwds):
         """ Remove one or more tomograms from an existing sequence.
         """
-        
-        if type(tgrams) == list:
-            if ids:
-                temp = list(tgrams[i] for i in range(len(tgrams)) if i not in ids)
                 
-        elif type(tgrams) == np.ndarray:
-            temp = np.delete(tgrams, obj=ids, **kwds)
+        temp = np.delete(self.tomograms, obj=ids, **kwds)
             
-        if assign_to is not None:
-            assign_to = temp
+        if in_place:
+            self.tomograms = temp
         
         if ret:
             return temp
+        else:
+            del temp
     
-    def intensity_scale(self, tgrams, axis):
+    def intensity_scale(self, axis=(1, 2), in_place=True, ret=False):
         """ Scale the intensity of tomograms along a specified axis.
         """
         
-        if type(tgrams) == list:
-            pass
-        elif type(tgrams) == np.ndarray:
-            pass
+        temp = self.tomoblock / self.tomoblock.mean(axis=axis)
+
+        if in_place:
+            self.tomoblock = temp
+
+        if ret:
+            return temp
+        else:
+            del temp
         
-    def pad_tomogram(self, tgrams, assign_to=None, ret=False, **kwds):
+    def pad_tomogram(self, in_place=True, ret=False, **kwds):
         """ Padding tomograms in various direction.
         """
+
+        temp = []
+        for itg, tg in enumerate(self.tomograms):
+            temp.append(np.pad(tg, **kwds))
         
-        if type(tgrams) == list:
-            temp = [np.pad(tg, **kwds) for tg in tgrams]
-        elif type(tgrams) == np.ndarray:
-            temp = np.pad(tgrams, **kwds)
-        
-        if assign_to is not None:
-            assign_to = temp
+            if in_place:
+                self.tomograms[itg] = temp[itg]
             
         if ret:
             return temp
+        else:
+            del temp
     
     def reconstruct(self, use_accelerated=False, ret=False, **kwds):
         """ Tomographic reconstruction using the algorithms within ``tomopy``.
@@ -267,10 +282,16 @@ class TomoRecon(object):
         if ret:
             return self.recout
         
-    def save(self, savedir, ftype='tiff'):
+    def save_recon(self, savedir, ftype='tiff', **kwds):
         """ Save the reconstruction output to 
         """
-        pass
+        
+        if ftype == 'tiff':
+            import tifffile as ti
+            ti.imsave(savedir + '.' + ftype, data=self.recout, **kwds)
+
+        else:
+            raise NotImplementedError
     
     def save_internals(self):
         """ Save the internal variables of the class
