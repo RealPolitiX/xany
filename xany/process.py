@@ -7,6 +7,8 @@ import numpy.fft as nfft
 import scipy.ndimage as ndi
 from skimage import transform as trf
 import raster_geometry as rg
+from silx.io import dictdump
+import scipy.io as sio
 from tomopy import *
 
 
@@ -187,12 +189,13 @@ class TomoReconstructor(ImageStack):
     Class for streamlined workflow of tomographic reconstruction including files preparation.
     """
     
-    def __init__(self, tgrams=None, tblock=None, axis=0):
+    def __init__(self, tgrams=None, tblock=None, axis=0, angles=[]):
 
         super().__init__(images=tgrams, stack=tblock, axis=axis)
         
         self.tomograms = self.images
         self.tomoblock = self.stack
+        self.angles = []
             
     def blocking(self, **kwds):
         """ Adjust the tomograms to have the same shape.
@@ -227,13 +230,18 @@ class TomoReconstructor(ImageStack):
         return self.tomoblock.shape[0]
         
     def delete_tomograms(self, ids, in_place=True, ret=False, **kwds):
-        """ Remove one or more tomograms from an existing sequence.
+        """ Remove one or more tomograms from an existing sequence (along with the paired angles).
         """
                 
         temp = np.delete(self.tomograms, obj=ids, **kwds)
+        try:
+            tempa = np.delete(self.angles, obj=ids, **kwds)
+        except:
+            tempa = []
             
         if in_place:
             self.tomograms = temp
+            self.angles = tempa
         
         if ret:
             return temp
@@ -282,21 +290,32 @@ class TomoReconstructor(ImageStack):
         if ret:
             return self.recout
         
-    def save_recon(self, savedir, ftype='tiff', **kwds):
-        """ Save the reconstruction output to 
+    def save_recon(self, save_addr, ftype='tiff', **kwds):
+        """ Save the reconstruction output to file.
         """
         
         if ftype == 'tiff':
             import tifffile as ti
-            ti.imsave(savedir + '.' + ftype, data=self.recout, **kwds)
+            ti.imsave(save_addr + '.' + ftype, data=self.recout, **kwds)
 
         else:
             raise NotImplementedError
     
-    def save_internals(self):
+    def save_internals(self, save_addr, form='h5'):
         """ Save the internal variables of the class
         """
-        pass
+
+        save_addr = save_addr + '.' + form
+
+        if form == 'mat':
+            sio.savemat(save_addr, self.__dict__)
+
+        elif form in ('h5', 'hdf5'):
+            try:
+                dictdump.dicttoh5(self.__dict__, save_addr)
+            except:
+                import deepdish.io as dio
+                dio.save(save_addr, self.__dict__, compression=None)
 
 
 def ImtoVTK(imdir, form='tiff', outdir='./', **kwargs):

@@ -8,3 +8,4 @@ h5py
 raster_geometry
 symmetrize
 tqdm
+silx
