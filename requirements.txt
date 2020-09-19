@@ -9,3 +9,4 @@ raster_geometry
 symmetrize
 tqdm
 silx
+hdfio

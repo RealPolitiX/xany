@@ -8,7 +8,7 @@ from skimage.filters.rank import median
 from skimage.morphology import disk
 import scipy.signal as ss
 from scipy import interpolate
-from h5py import File
+from hdfio import dict_io as io
 
 
 def findFiles(fdir, fstring='', ftype='h5', **kwds):
@@ -87,36 +87,12 @@ def orderFiles(files, seqnum, nzf=0, verbose=False):
     return fordered
 
 
-def loadH5Parts(filename, content, outtype='dict', alias=None):
+def loadH5Parts(*args, **kwds):
     """
-    Load specified content from a single complex HDF5 file.
-    
-    :Parameters:
-        filename : str
-            Namestring of the file.
-        content : list/tuple
-            Collection of names for the content to retrieve.
-        outtype : str | 'dict'
-            Option to specify the format of output ('dict', 'list', 'vals').
-        alias : list/tuple | None
-            Collection of aliases to assign to each entry in content in the output dictionary.
+    Load specified content from a single complex HDF5 file. See ``hdfio.dict_io.loadH5Parts()``.
     """
     
-    with File(filename) as f:
-        if alias is None:
-            outdict = {k: np.array(f[k]) for k in content}
-        else:
-            if len(content) != len(alias):
-                raise ValueError('Not every content entry is assigned an alias!')
-            else:
-                outdict = {ka: np.array(f[k]) for k in content for ka in alias}
-    
-    if outtype == 'dict':
-        return outdict
-    elif outtype == 'list':
-        return list(outdict.items())
-    elif outtype == 'vals':
-        return list(outdict.values())
+    return io.loadH5Parts(*args, **kwds)
 
 
 def f_multichannel(data, f, ch_index=0, ch_range=[None, None], **kwds):
